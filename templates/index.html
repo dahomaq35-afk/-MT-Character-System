@@ -1,410 +1,134 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MT Voice</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            background: #0b0b0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    <title>MT Character System</title>
+        .box {
+            width: 90%;
+            max-width: 450px;
+            background: #15151c;
+            padding: 30px;
+            border-radius: 18px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0,0,0,.5);
+        }
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+        h1 {
+            margin-bottom: 10px;
+        }
 
+        p {
+            color: #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: 0;
+            border-radius: 10px;
+            background: #5865F2;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            opacity: .9;
+        }
+
+        #status {
+            margin-top: 20px;
+            color: #aaa;
+        }
+    </style>
 </head>
 
 <body>
 
-<header class="hero">
+<div class="box">
 
-    <div class="mt-logo">
-        MT
-    </div>
-
-    <h1>
-        MT Character System
-    </h1>
+    <h1>🎙️ MT Voice</h1>
 
     <p>
-        نظام إدارة الشخصيات والأقسام
+        نظام الصوت الخاص بـ MT RP
     </p>
 
-</header>
+    <button id="connect">
+        🎤 تشغيل المايك
+    </button>
 
+    <div id="status">
+        غير متصل
+    </div>
 
-<main class="sections">
+</div>
 
+<script>
 
-    <!-- الشخصيات -->
+const button = document.getElementById("connect");
+const status = document.getElementById("status");
 
-    <a href="/characters"
-       class="section-card">
+button.onclick = async () => {
 
-        <div class="icon">
-            👤
-        </div>
+    try {
 
-        <h2>
-            الشخصيات
-        </h2>
+        status.innerText = "جاري الاتصال...";
 
-        <p>
-            <strong>
-                وش معنى ذا الخيار؟
-            </strong>
+        /*
+         * نطلب صلاحية المايك
+         */
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true
+        });
 
-            <br>
+        stream.getTracks().forEach(track => {
+            track.stop();
+        });
 
-            إنشاء وعرض وإدارة الشخصيات.
-        </p>
+        /*
+         * لاحقاً هنا نحصل على LiveKit Token
+         */
+        const response = await fetch("/voice/token?user_id=test");
 
-        <p>
-            <strong>
-                مخصص لمين؟
-            </strong>
+        if (!response.ok) {
+            throw new Error("Token request failed");
+        }
 
-            <br>
+        const data = await response.json();
 
-            متاح للجميع لإنشاء شخصية،
-            والمدراء حسب الصلاحيات للإدارة.
-        </p>
+        console.log("LiveKit:", data);
 
-        <span class="open">
-            دخول القسم ←
-        </span>
+        status.innerText = "🎙️ المايك جاهز";
 
-    </a>
+        button.innerText = "🟢 متصل";
 
+    } catch (error) {
 
-    <!-- الشرطة -->
+        console.error(error);
 
-    <a href="/police"
-       class="section-card">
-
-        <div class="icon">
-            👮
-        </div>
-
-        <h2>
-            الشرطة
-        </h2>
-
-        <p>
-            <strong>
-                وش معنى ذا الخيار؟
-            </strong>
-
-            <br>
-
-            إدارة أفراد الشرطة والرتب.
-        </p>
-
-        <p>
-            <strong>
-                مخصص لمين؟
-            </strong>
-
-            <br>
-
-            أصحاب صلاحيات الشرطة.
-        </p>
-
-        <span class="open">
-            دخول القسم ←
-        </span>
-
-    </a>
-
-
-    <!-- وزارة العدل -->
-
-    <a href="/justice"
-       class="section-card">
-
-        <div class="icon">
-            ⚖️
-        </div>
-
-        <h2>
-            وزارة العدل
-        </h2>
-
-        <p>
-            <strong>
-                وش معنى ذا الخيار؟
-            </strong>
-
-            <br>
-
-            إدارة أفراد وزارة العدل والرتب.
-        </p>
-
-        <p>
-            <strong>
-                مخصص لمين؟
-            </strong>
-
-            <br>
-
-            أصحاب صلاحيات وزارة العدل.
-        </p>
-
-        <span class="open">
-            دخول القسم ←
-        </span>
-
-    </a>
-
-
-    <!-- الصحة -->
-
-    <a href="/health"
-       class="section-card">
-
-        <div class="icon">
-            🏥
-        </div>
-
-        <h2>
-            الصحة
-        </h2>
-
-        <p>
-            <strong>
-                وش معنى ذا الخيار؟
-            </strong>
-
-            <br>
-
-            إدارة أفراد القطاع الصحي والرتب.
-        </p>
-
-        <p>
-            <strong>
-                مخصص لمين؟
-            </strong>
-
-            <br>
-
-            أصحاب صلاحيات الصحة.
-        </p>
-
-        <span class="open">
-            دخول القسم ←
-        </span>
-
-    </a>
-
-
-    <!-- العصابات -->
-
-    <a href="/gangs"
-       class="section-card">
-
-        <div class="icon">
-            🏴
-        </div>
-
-        <h2>
-            العصابات
-        </h2>
-
-        <p>
-            <strong>
-                وش معنى ذا الخيار؟
-            </strong>
-
-            <br>
-
-            إدارة العصابات والأعضاء والرتب.
-        </p>
-
-        <p>
-            <strong>
-                العصابات الموجودة
-            </strong>
-
-            <br>
-
-            Scrap
-            <br>
-
-            Death Line
-            <br>
-
-            Trickster
-        </p>
-
-        <span class="open">
-            دخول القسم ←
-        </span>
-
-    </a>
-
-
-    <!-- الإدارة -->
-
-    <a href="/admin"
-       class="section-card admin-home-card">
-
-        <div class="icon">
-            ⚙️
-        </div>
-
-        <h2>
-            الإدارة
-        </h2>
-
-        <p>
-            <strong>
-                وش معنى ذا الخيار؟
-            </strong>
-
-            <br>
-
-            مركز تحكم كامل لإدارة النظام
-            والرتب والصلاحيات والأقسام.
-        </p>
-
-        <p>
-            <strong>
-                مخصص لمين؟
-            </strong>
-
-            <br>
-
-            أصحاب صلاحيات الإدارة.
-        </p>
-
-        <span class="open">
-            دخول الإدارة ←
-        </span>
-
-    </a>
-
-
-</main>
-
-
-<footer>
-
-    MT Character System © 2026
-
-</footer>
-
-
-<style>
-
-.sections {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 24px;
-
-    width: min(1200px, 94%);
-
-    margin: 40px auto;
-
-}
-
-
-.section-card {
-
-    min-height: 360px;
-
-    box-sizing: border-box;
-
-}
-
-
-.section-card .icon {
-
-    font-size: 48px;
-
-    margin-bottom: 15px;
-
-}
-
-
-.section-card h2 {
-
-    margin-bottom: 14px;
-
-}
-
-
-.section-card p {
-
-    line-height: 1.8;
-
-}
-
-
-.open {
-
-    display: inline-block;
-
-    margin-top: 18px;
-
-    font-weight: bold;
-
-}
-
-
-/* الإدارة */
-
-.admin-home-card {
-
-    border-color:
-        rgba(255, 122, 0, 0.25);
-
-}
-
-
-.admin-home-card:hover {
-
-    border-color: #ff7a00;
-
-    box-shadow:
-        0 20px 60px
-        rgba(255, 122, 0, 0.18);
-
-}
-
-
-.admin-home-card .icon {
-
-    color: #ff7a00;
-
-}
-
-
-/* الجوال */
-
-@media (max-width: 700px) {
-
-    .sections {
-
-        grid-template-columns: 1fr;
+        status.innerText =
+            "❌ تعذر تشغيل المايك";
 
     }
 
+};
 
-    .section-card {
-
-        min-height: 320px;
-
-    }
-
-}
-
-</style>
-
+</script>
 
 </body>
 </html>
